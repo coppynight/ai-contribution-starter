@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-25T05:43:38.799839+00:00",
+  "python_version": "3.12.10",
+  "command": "python scripts/verify_demo.py",
+  "controlled_fault": "remove completed-task filter in temporary copies only",
+  "cases": [
+    {
+      "exit_code": 0,
+      "tests_run": 3,
+      "test_failures": 0,
+      "tests_passed": true,
+      "stdout": "",
+      "stderr": "test_all_completed_yields_empty_view (test_tasks.TaskViewTests.test_all_completed_yields_empty_view) ... ok\ntest_pending_view_preserves_order (test_tasks.TaskViewTests.test_pending_view_preserves_order) ... ok\ntest_view_edits_do_not_change_source_records (test_tasks.TaskViewTests.test_view_edits_do_not_change_source_records) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+      "case": "before_baseline",
+      "expected_exit_code": 0,
+      "expected_test_failures": 0,
+      "matches_expectation": true
+    },
+    {
+      "exit_code": 0,
+      "tests_run": 3,
+      "test_failures": 2,
+      "tests_passed": false,
+      "stdout": "",
+      "stderr": "test_all_completed_yields_empty_view (test_tasks.TaskViewTests.test_all_completed_yields_empty_view) ... FAIL\ntest_pending_view_preserves_order (test_tasks.TaskViewTests.test_pending_view_preserves_order) ... FAIL\ntest_view_edits_do_not_change_source_records (test_tasks.TaskViewTests.test_view_edits_do_not_change_source_records) ... ok\n\n======================================================================\nFAIL: test_all_completed_yields_empty_view (test_tasks.TaskViewTests.test_all_completed_yields_empty_view)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<demo>/tests/test_tasks.py\", line 22, in test_all_completed_yields_empty_view\n    self.assertEqual(pending_tasks([{\"id\": 1, \"completed\": True}]), [])\nAssertionError: Lists differ: [{'id': 1, 'completed': True}] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n{'id': 1, 'completed': True}\n\n- [{'completed': True, 'id': 1}]\n+ []\n\n======================================================================\nFAIL: test_pending_view_preserves_order (test_tasks.TaskViewTests.test_pending_view_preserves_order)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<demo>/tests/test_tasks.py\", line 13, in test_pending_view_preserves_order\n    self.assertEqual([item[\"id\"] for item in pending_tasks(items)], [3, 2])\nAssertionError: Lists differ: [3, 1, 2] != [3, 2]\n\nFirst differing element 1:\n1\n2\n\nFirst list contains 1 additional elements.\nFirst extra element 2:\n2\n\n- [3, 1, 2]\n?     ---\n\n+ [3, 2]\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nFAILED (failures=2)\n",
+      "case": "before_controlled_fault",
+      "expected_exit_code": 0,
+      "expected_test_failures": 2,
+      "matches_expectation": true
+    },
+    {
+      "exit_code": 0,
+      "tests_run": 3,
+      "test_failures": 0,
+      "tests_passed": true,
+      "stdout": "",
+      "stderr": "test_all_completed_yields_empty_view (test_tasks.TaskViewTests.test_all_completed_yields_empty_view) ... ok\ntest_pending_view_preserves_order (test_tasks.TaskViewTests.test_pending_view_preserves_order) ... ok\ntest_view_edits_do_not_change_source_records (test_tasks.TaskViewTests.test_view_edits_do_not_change_source_records) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+      "case": "after_baseline",
+      "expected_exit_code": 0,
+      "expected_test_failures": 0,
+      "matches_expectation": true
+    },
+    {
+      "exit_code": 1,
+      "tests_run": 3,
+      "test_failures": 2,
+      "tests_passed": false,
+      "stdout": "",
+      "stderr": "test_all_completed_yields_empty_view (test_tasks.TaskViewTests.test_all_completed_yields_empty_view) ... FAIL\ntest_pending_view_preserves_order (test_tasks.TaskViewTests.test_pending_view_preserves_order) ... FAIL\ntest_view_edits_do_not_change_source_records (test_tasks.TaskViewTests.test_view_edits_do_not_change_source_records) ... ok\n\n======================================================================\nFAIL: test_all_completed_yields_empty_view (test_tasks.TaskViewTests.test_all_completed_yields_empty_view)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<demo>/tests/test_tasks.py\", line 22, in test_all_completed_yields_empty_view\n    self.assertEqual(pending_tasks([{\"id\": 1, \"completed\": True}]), [])\nAssertionError: Lists differ: [{'id': 1, 'completed': True}] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n{'id': 1, 'completed': True}\n\n- [{'completed': True, 'id': 1}]\n+ []\n\n======================================================================\nFAIL: test_pending_view_preserves_order (test_tasks.TaskViewTests.test_pending_view_preserves_order)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<demo>/tests/test_tasks.py\", line 13, in test_pending_view_preserves_order\n    self.assertEqual([item[\"id\"] for item in pending_tasks(items)], [3, 2])\nAssertionError: Lists differ: [3, 1, 2] != [3, 2]\n\nFirst differing element 1:\n1\n2\n\nFirst list contains 1 additional elements.\nFirst extra element 2:\n2\n\n- [3, 1, 2]\n?     ---\n\n+ [3, 2]\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nFAILED (failures=2)\n",
+      "case": "after_controlled_fault",
+      "expected_exit_code": 1,
+      "expected_test_failures": 2,
+      "matches_expectation": true
+    },
+    {
+      "exit_code": 0,
+      "tests_run": 3,
+      "test_failures": 0,
+      "tests_passed": true,
+      "stdout": "",
+      "stderr": "test_all_completed_yields_empty_view (test_tasks.TaskViewTests.test_all_completed_yields_empty_view) ... ok\ntest_pending_view_preserves_order (test_tasks.TaskViewTests.test_pending_view_preserves_order) ... ok\ntest_view_edits_do_not_change_source_records (test_tasks.TaskViewTests.test_view_edits_do_not_change_source_records) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+      "case": "after_restored",
+      "expected_exit_code": 0,
+      "expected_test_failures": 0,
+      "matches_expectation": true
+    }
+  ],
+  "temporary_after_source_restored": true,
+  "source_files_unchanged": true,
+  "source_hashes_before": {
+    "demo-before/check.py": "ff5bddfadf33ebe06ad1e7d2ad9b919721d9b043bf3a548d735c8e488d970b87",
+    "demo-before/README.md": "71245a67f7aaee044b279885cad93e62387cf70a53d97da367c78292ce6e74da",
+    "demo-before/tasks.py": "3f8921be39ea8000124b295b5d7603cc69a10ae144bfa413854148b9c778058d",
+    "demo-before/tests/test_tasks.py": "b345b75d62305e957e44a904058b0b7175050c238b9e574e69f83e323558be43",
+    "demo-after/check.py": "c3cf0080d558ff9bbc16a9ce34603ad65e7431c8670cf13e0b17c036eed9e0fa",
+    "demo-after/README.md": "8fd18add625689002afe3336d4be12f55e711c350eb091f3ecdc7f4e1d2d1a7b",
+    "demo-after/tasks.py": "3f8921be39ea8000124b295b5d7603cc69a10ae144bfa413854148b9c778058d",
+    "demo-after/tests/test_tasks.py": "b345b75d62305e957e44a904058b0b7175050c238b9e574e69f83e323558be43"
+  },
+  "source_hashes_after": {
+    "demo-before/check.py": "ff5bddfadf33ebe06ad1e7d2ad9b919721d9b043bf3a548d735c8e488d970b87",
+    "demo-before/README.md": "71245a67f7aaee044b279885cad93e62387cf70a53d97da367c78292ce6e74da",
+    "demo-before/tasks.py": "3f8921be39ea8000124b295b5d7603cc69a10ae144bfa413854148b9c778058d",
+    "demo-before/tests/test_tasks.py": "b345b75d62305e957e44a904058b0b7175050c238b9e574e69f83e323558be43",
+    "demo-after/check.py": "c3cf0080d558ff9bbc16a9ce34603ad65e7431c8670cf13e0b17c036eed9e0fa",
+    "demo-after/README.md": "8fd18add625689002afe3336d4be12f55e711c350eb091f3ecdc7f4e1d2d1a7b",
+    "demo-after/tasks.py": "3f8921be39ea8000124b295b5d7603cc69a10ae144bfa413854148b9c778058d",
+    "demo-after/tests/test_tasks.py": "b345b75d62305e957e44a904058b0b7175050c238b9e574e69f83e323558be43"
+  },
+  "verified": true
+}

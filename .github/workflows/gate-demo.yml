@@ -1,0 +1,37 @@
+name: Gate demo — controlled failure
+run-name: Gate demo | ${{ inputs.version }} | fault=${{ inputs.inject_fault }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Check entry point to run
+        required: true
+        default: after
+        type: choice
+        options:
+          - before
+          - after
+      inject_fault:
+        description: Remove the completed-task filter in a temporary copy
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Run gate (after + fault is expected to fail)
+        env:
+          DEMO_VERSION: ${{ inputs.version }}
+          INJECT_FAULT: ${{ inputs.inject_fault }}
+        run: python scripts/run_gate_demo.py --version "$DEMO_VERSION" --inject-fault "$INJECT_FAULT"
