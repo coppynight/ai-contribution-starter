@@ -1,4 +1,4 @@
-name: Verify demo behavior
+name: CI — Exit-code regression checks
 
 on:
   push:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   verify:
+    name: Exit-code regression checks
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -19,6 +20,8 @@ jobs:
           python-version: '3.13'
       - name: Verify baseline, controlled faults, and recovery
         run: python scripts/verify_demo.py --output evidence/ci-verification.json
+      - name: Verify that incomplete or broken checks cannot pass
+        run: python scripts/test_ci_contracts.py
       - name: Show portable verification evidence
-        if: always()
+        if: ${{ !cancelled() && hashFiles('evidence/ci-verification.json') != '' }}
         run: cat evidence/ci-verification.json

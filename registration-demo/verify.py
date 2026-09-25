@@ -10,6 +10,34 @@ import sys
 from scenarios import build_stages
 
 
+def verify_check_output(version, result):
+    """Do not accept the expected exit code if checks were skipped or changed."""
+    expected_checks = [
+        ("个人报名保留 7 个名额", 7, 7),
+        ("个人取消恢复 8 个名额", 8, 8),
+    ]
+    if version != "before":
+        expected_checks.extend([
+            ("家庭报名保留 5 个名额", 5, 5),
+            ("家庭取消恢复 8 个名额", 6 if version == "candidate" else 8, 8),
+        ])
+    if result.get("version") != version:
+        raise AssertionError(f"{version}: unexpected version in check output")
+    checks = result.get("checks")
+    if not isinstance(checks, list) or len(checks) != len(expected_checks):
+        raise AssertionError(f"{version}: missing or unexpected checks")
+    for actual, (label, value, expected) in zip(checks, expected_checks):
+        if (
+            actual.get("label") != label
+            or actual.get("actual") != value
+            or actual.get("expected") != expected
+            or actual.get("passed") is not (value == expected)
+        ):
+            raise AssertionError(f"{version}: unexpected check result for {label}")
+    if result.get("passed") is not (version != "candidate"):
+        raise AssertionError(f"{version}: inconsistent overall check result")
+
+
 def main():
     root = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description=__doc__)
@@ -28,11 +56,13 @@ def main():
     for version, expected_code in (("before", 0), ("candidate", 1), ("after", 0)):
         process = subprocess.run(
             [sys.executable, str(root / "check.py"), "--version", version],
-            cwd=root, text=True, capture_output=True, check=False,
+            cwd=root, text=True, encoding="utf-8", capture_output=True, check=False,
+            timeout=30,
         )
         if process.returncode != expected_code:
             raise AssertionError(f"{version}: expected exit {expected_code}, got {process.returncode}")
         result = json.loads(process.stdout)
+        verify_check_output(version, result)
         commands.append({
             "command": f"python registration-demo/check.py --version {version}",
             "exit_code": process.returncode,

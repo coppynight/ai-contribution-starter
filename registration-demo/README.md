@@ -12,7 +12,7 @@
 python registration-demo/verify.py
 ```
 
-脚本实际调用模型和独立检查进程，断言预期结果，生成 [evidence.json](evidence.json)。纯函数返回新的状态，不修改传入状态；验证还比较源码哈希，保证演练不修改源码。
+脚本实际调用模型和独立检查进程，逐项核对版本、检查项目与数量、预期值、实际值、通过状态和退出码，生成 [evidence.json](evidence.json)。少跑检查或因为其他原因失败，都不算演练通过。纯函数返回新的状态，不修改传入状态；验证还比较源码哈希，保证演练不修改源码。
 
 | 阶段 | 实际经过 | 能说明什么 |
 | --- | --- | --- |
@@ -62,6 +62,6 @@ python registration-demo/check.py --version after
 
 本例只用四个 Python 文件和一个检查命令。迁移到自己的项目时，应复用已有任务、PR、测试和 CI 入口。完整的 [维护机制启动指令](../prompts/maintainer.md) 会引导 agent 先检查现状，再补齐影响后续贡献的缺口。
 
-仓库的 `Verify registration contribution mechanism` 工作流在 push / pull request 时运行对照验证。它不会配置分支保护，不声称失败结果会强制阻止合入。
+仓库的 `CI — Registration regression checks` 工作流在 push / pull request 时运行对照验证。另一个自动工作流运行 `python scripts/test_ci_contracts.py`，确认删除家庭回归检查、吞掉失败退出码等破坏会被验证器拒绝。工作流不会配置分支保护，不声称失败结果会强制阻止合入。
 
 视频使用的数据接口位于 `evidence.json` 的 `visual_contract`，内容是实际模型运行值：`capacity=8`、`family_size=3`、`after_booking=5`、`broken_cancel=6`、`fixed_cancel=8`。每个阶段的事件、检查预期及实际结果位于 `stages`，可据此复查画面。

@@ -1,5 +1,10 @@
 # 让 AI 持续贡献：从现有项目补齐机制
 
+[![退出码回归检查](https://github.com/coppynight/ai-contribution-starter/actions/workflows/verify-demo.yml/badge.svg?branch=main&event=push)](https://github.com/coppynight/ai-contribution-starter/actions/workflows/verify-demo.yml)
+[![报名流程回归检查](https://github.com/coppynight/ai-contribution-starter/actions/workflows/verify-registration-demo.yml/badge.svg?branch=main&event=push)](https://github.com/coppynight/ai-contribution-starter/actions/workflows/verify-registration-demo.yml)
+
+上面两个徽章表示当前 `main` 的自动检查状态。历史记录中有一次**故意制造的红灯演示**，不代表当前主分支检查失败；[下文](#历史上的真实红灯记录)保留了它的输入、日志与解释。现在所有工作流都验证教学结果是否符合预期，任何意外结果仍会让 CI 失败。
+
 这里提供一份可以交给 coding agent 的启动指令，以及两个可运行的 before / after 教学示例。
 
 核心想法是：把“让 AI 持续、稳定地为项目贡献”本身作为一个工程问题来设计。复用已有工程，先补齐一个真实缺口，再把验证入口留给下一次贡献。
@@ -69,28 +74,51 @@ python demo-before/check.py
 python demo-after/check.py
 ```
 
-## 在 GitHub Actions 看一次真实的绿灯与红灯
+## 在 GitHub Actions 验证这套教学流程
 
-本仓库有两个工作流：
+本仓库有三个工作流，检查名称各不相同：
 
-- **Verify demo behavior**：每次 push / pull request 运行整个对照验证。它确认“before 会掩盖负例、after 会正确失败”，所以预期为绿色；这不代表 before 的检查入口可靠。
-- **Gate demo — controlled failure**：手动触发的单次演示，输入 `version` 和 `inject_fault`，直接返回对应检查入口的退出码，不把失败转成成功。
-
-在仓库 Actions 页面选择第二个工作流，通过 **Run workflow** 分别运行：
-
-| 输入 | 预期工作流结果 | 含义 |
+| 工作流 | 触发方式 | 验证什么 |
 | --- | --- | --- |
-| `version=before`, `inject_fault=true` | 绿色 | 测试失败被旧入口掩盖，演示错误的绿灯 |
-| `version=after`, `inject_fault=true` | 红色 | 新入口把失败传给 CI，演示有效反馈 |
-| `version=after`, `inject_fault=false` | 绿色 | 正常代码通过检查 |
+| **CI — Exit-code regression checks** | push / pull request / 手动 | 正常、故障和恢复的五种对照情形；另用临时副本验证删检查、吞退出码等破坏能被发现。 |
+| **CI — Registration regression checks** | push / pull request / 手动 | 独立检查、组合失败和修复；核对每个版本实际执行的检查项目、数量、预期值、实际值和退出码。 |
+| **CI — Verify selected gate scenario** | 手动 | 运行选定的 before / after 场景，把真实结果与该场景的预期逐项比较，并在 Actions Summary 中展示。 |
 
-第二种组合故意失败，用于证明门槛有效。故障仅注入临时副本，不会修改提交中的业务代码。也可以在本地运行同一演示：
+在 Actions 中选择第三个工作流，点击 **Run workflow**：
+
+| 输入 | 预期真实检查结果 | 场景验证工作流 |
+| --- | --- | --- |
+| `version=before`, `inject_fault=false` | 3 项通过，入口退出 0 | 符合预期才通过 |
+| `version=before`, `inject_fault=true` | 2 项失败，旧入口却退出 0 | 验证出旧入口的缺陷才通过 |
+| `version=after`, `inject_fault=true` | 2 项失败，新入口退出 1 | 验证出新入口正确传递失败才通过 |
+| `version=after`, `inject_fault=false` | 3 项通过，入口退出 0 | 符合预期才通过 |
+
+**教学验证通过，表示实际结果符合预期，不表示错误代码可以接纳。** 例如 after + 故障如果意外返回 0，或者少跑了检查，工作流必须失败。这里没有用 `continue-on-error` 忽略错误，而是显式核对真实退出码、测试数量和失败数量。
+
+故障仅注入临时副本。要直接观察作为业务门槛的原始退出码，在本地运行：
 
 ```sh
 python scripts/run_gate_demo.py --version before --inject-fault true
+# 退出 0，展示旧入口掩盖失败的缺陷。
 python scripts/run_gate_demo.py --version after --inject-fault true
+# 退出 1，展示修复后的入口正确传递失败。
 python scripts/run_gate_demo.py --version after --inject-fault false
+# 退出 0，正常代码通过。
 ```
+
+手动工作流在同一命令后增加 `--verify-expectation`，核对教学场景。**接入真实项目的业务检查时，应使用 `python demo-after/check.py` 这样的原始入口，保留失败退出码，不要把“预期故障演练”当作接纳门槛。**
+
+验证“验证器本身不会漏报”的回归命令是：
+
+```sh
+python scripts/test_ci_contracts.py
+```
+
+它只在临时副本中制造破坏，原仓库不变。无故删掉家庭检查、把退出码固定为 0、用另一项失败冒充家庭取消失败，以及把修复退回旧行为，都必须被拒绝。
+
+### 历史上的真实红灯记录
+
+旧版手动工作流名为 **Gate demo — controlled failure**，直接返回原始检查退出码，因此曾刻意留下红色记录。现在改为上面的场景验证，保留原始命令和历史证据供核查。
 
 以下是真实运行记录，均基于提交 `faa23dc2d4747856219b07b5d9e60305341a475f`：
 
@@ -110,6 +138,7 @@ python scripts/run_gate_demo.py --version after --inject-fault false
 - [demo-after/](demo-after/)：修补后的检查入口。
 - [scripts/verify_demo.py](scripts/verify_demo.py)：五个情形的自动复现与证据输出。
 - [scripts/run_gate_demo.py](scripts/run_gate_demo.py)：单次演示，原样返回检查入口状态。
+- [scripts/test_ci_contracts.py](scripts/test_ci_contracts.py)：在临时副本中验证 CI 能发现检查缺失和错误结果。
 - [.github/workflows/](.github/workflows/)：自动验证与手动演示工作流。
 
 本仓库不包含文章全文或个人项目材料。示例用于说明机制如何落在已有工程上，不能替代真实项目的风险判断。

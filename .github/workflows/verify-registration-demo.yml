@@ -1,4 +1,4 @@
-name: Verify registration contribution mechanism
+name: CI — Registration regression checks
 
 on:
   push:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   verify:
+    name: Registration regression checks
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -20,5 +21,5 @@ jobs:
       - name: Verify independent checks, combined failure, and correction
         run: python registration-demo/verify.py --output registration-demo/ci-evidence.json
       - name: Show portable evidence
-        if: always()
+        if: ${{ !cancelled() && hashFiles('registration-demo/ci-evidence.json') != '' }}
         run: cat registration-demo/ci-evidence.json
