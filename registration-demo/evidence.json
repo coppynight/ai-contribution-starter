@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "kind": "constructed_teaching_example",
+  "description": "构造的活动报名样例。数字来自本次实际运行，不是真实用户事故或 Git 分支合并实验。",
+  "visual_contract": {
+    "capacity": 8,
+    "family_size": 3,
+    "after_booking": 5,
+    "broken_cancel": 6,
+    "fixed_cancel": 8
+  },
+  "stages": [
+    {
+      "id": "baseline",
+      "title": "旧的个人报名规则",
+      "remaining": 7,
+      "events": [
+        {
+          "label": "开放报名",
+          "remaining": 8,
+          "bookings": []
+        },
+        {
+          "label": "1 人报名",
+          "remaining": 7,
+          "bookings": [
+            {
+              "id": "single",
+              "people": 1
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "label": "个人报名占用 1 个名额",
+          "actual": 7,
+          "expected": 7,
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "contributor_a",
+      "title": "A：家庭报名，单独验证",
+      "remaining": 5,
+      "events": [
+        {
+          "label": "开放报名",
+          "remaining": 8,
+          "bookings": []
+        },
+        {
+          "label": "一家 3 人报名",
+          "remaining": 5,
+          "bookings": [
+            {
+              "id": "family",
+              "people": 3
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "label": "家庭报名占用 3 个名额",
+          "actual": 5,
+          "expected": 5,
+          "passed": true
+        },
+        {
+          "label": "报名记录保留实际人数",
+          "actual": 3,
+          "expected": 3,
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "contributor_b",
+      "title": "B：取消报名，按旧的个人场景验证",
+      "remaining": 8,
+      "events": [
+        {
+          "label": "开放报名",
+          "remaining": 8,
+          "bookings": []
+        },
+        {
+          "label": "1 人报名",
+          "remaining": 7,
+          "bookings": [
+            {
+              "id": "single",
+              "people": 1
+            }
+          ]
+        },
+        {
+          "label": "取消 1 人报名",
+          "remaining": 8,
+          "bookings": []
+        }
+      ],
+      "checks": [
+        {
+          "label": "个人取消归还 1 个名额",
+          "actual": 8,
+          "expected": 8,
+          "passed": true
+        },
+        {
+          "label": "已取消的报名被移除",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "candidate",
+      "title": "组合候选：家庭报名后取消",
+      "remaining": 6,
+      "events": [
+        {
+          "label": "开放报名",
+          "remaining": 8,
+          "bookings": []
+        },
+        {
+          "label": "一家 3 人报名",
+          "remaining": 5,
+          "bookings": [
+            {
+              "id": "family",
+              "people": 3
+            }
+          ]
+        },
+        {
+          "label": "按旧规则取消家庭报名",
+          "remaining": 6,
+          "bookings": []
+        }
+      ],
+      "checks": [
+        {
+          "label": "家庭报名占用 3 个名额",
+          "actual": 5,
+          "expected": 5,
+          "passed": true
+        },
+        {
+          "label": "取消后应恢复全部名额",
+          "actual": 6,
+          "expected": 8,
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "after",
+      "title": "修正反馈后：按实际人数归还",
+      "remaining": 8,
+      "events": [
+        {
+          "label": "开放报名",
+          "remaining": 8,
+          "bookings": []
+        },
+        {
+          "label": "一家 3 人报名",
+          "remaining": 5,
+          "bookings": [
+            {
+              "id": "family",
+              "people": 3
+            }
+          ]
+        },
+        {
+          "label": "按实际人数取消家庭报名",
+          "remaining": 8,
+          "bookings": []
+        }
+      ],
+      "checks": [
+        {
+          "label": "家庭报名占用 3 个名额",
+          "actual": 5,
+          "expected": 5,
+          "passed": true
+        },
+        {
+          "label": "取消后恢复全部名额",
+          "actual": 8,
+          "expected": 8,
+          "passed": true
+        },
+        {
+          "label": "已取消的报名被移除",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "label": "初始状态未被修改",
+          "actual": 8,
+          "expected": 8,
+          "passed": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "commands": [
+    {
+      "command": "python registration-demo/check.py --version before",
+      "exit_code": 0,
+      "checks_passed": 2,
+      "checks_failed": 0,
+      "checks": [
+        {
+          "label": "个人报名保留 7 个名额",
+          "actual": 7,
+          "expected": 7,
+          "passed": true
+        },
+        {
+          "label": "个人取消恢复 8 个名额",
+          "actual": 8,
+          "expected": 8,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "command": "python registration-demo/check.py --version candidate",
+      "exit_code": 1,
+      "checks_passed": 3,
+      "checks_failed": 1,
+      "checks": [
+        {
+          "label": "个人报名保留 7 个名额",
+          "actual": 7,
+          "expected": 7,
+          "passed": true
+        },
+        {
+          "label": "个人取消恢复 8 个名额",
+          "actual": 8,
+          "expected": 8,
+          "passed": true
+        },
+        {
+          "label": "家庭报名保留 5 个名额",
+          "actual": 5,
+          "expected": 5,
+          "passed": true
+        },
+        {
+          "label": "家庭取消恢复 8 个名额",
+          "actual": 6,
+          "expected": 8,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "command": "python registration-demo/check.py --version after",
+      "exit_code": 0,
+      "checks_passed": 4,
+      "checks_failed": 0,
+      "checks": [
+        {
+          "label": "个人报名保留 7 个名额",
+          "actual": 7,
+          "expected": 7,
+          "passed": true
+        },
+        {
+          "label": "个人取消恢复 8 个名额",
+          "actual": 8,
+          "expected": 8,
+          "passed": true
+        },
+        {
+          "label": "家庭报名保留 5 个名额",
+          "actual": 5,
+          "expected": 5,
+          "passed": true
+        },
+        {
+          "label": "家庭取消恢复 8 个名额",
+          "actual": 8,
+          "expected": 8,
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "source_unchanged": true,
+  "source_sha256": {
+    "check.py": "49a48390ed1b26dde80182287642581997d6cdba6fe2a66937ac01562c13a29c",
+    "model.py": "f8c4977b76f1d7f4734cd467cc64c1f7503f721ebd39cb06b35ca212e9d49d2b",
+    "scenarios.py": "c59fd65684e205205d5b353c2febae3278833101446f33624d379c3f7a2fd562",
+    "verify.py": "f0d2a9716afccb6718a7a56599787fd61547dcecacb2ce3f28c40076dfcdb3d7"
+  },
+  "verification_passed": true,
+  "limits": [
+    "独立检查通过只证明列出的场景，不证明整个贡献正确。",
+    "candidate 返回 1 是演练中预期的失败；verify 返回 0 表示这些演练结果符合预期。",
+    "工作流只提供检查结果；本例没有设置禁止失败代码合入的分支保护。"
+  ]
+}
