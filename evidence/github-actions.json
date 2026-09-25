@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/coppynight/ai-contribution-starter",
+  "head_sha": "faa23dc2d4747856219b07b5d9e60305341a475f",
+  "verified_on_utc": "2026-09-25",
+  "verification_method": "Read completed GitHub Actions conclusions and the corresponding job logs using gh run view.",
+  "fault_scope": "The filter is removed only in a temporary copy; committed source files are unchanged.",
+  "runs": [
+    {
+      "case": "automatic_comparison_verification",
+      "workflow": "verify-demo.yml",
+      "event": "push",
+      "run_id": 36099968800,
+      "url": "https://github.com/coppynight/ai-contribution-starter/actions/runs/36099968800",
+      "head_sha": "faa23dc2d4747856219b07b5d9e60305341a475f",
+      "status": "completed",
+      "conclusion": "success",
+      "expected_conclusion": "success",
+      "log_excerpts": [
+        "PASS before_baseline: tests=3, failures=0, exit=0",
+        "PASS before_controlled_fault: tests=3, failures=2, exit=0",
+        "PASS after_baseline: tests=3, failures=0, exit=0",
+        "PASS after_controlled_fault: tests=3, failures=2, exit=1",
+        "PASS after_restored: tests=3, failures=0, exit=0",
+        "Source files unchanged: True; temporary after restored: True"
+      ],
+      "interpretation": "The comparison harness passed because every baseline, controlled fault, and recovery behaved as expected. This does not mean the before gate detects failures."
+    },
+    {
+      "case": "before_controlled_fault",
+      "workflow": "gate-demo.yml",
+      "event": "workflow_dispatch",
+      "inputs": {"version": "before", "inject_fault": true},
+      "run_id": 36100006712,
+      "url": "https://github.com/coppynight/ai-contribution-starter/actions/runs/36100006712",
+      "head_sha": "faa23dc2d4747856219b07b5d9e60305341a475f",
+      "status": "completed",
+      "conclusion": "success",
+      "expected_conclusion": "success",
+      "tests_run": 3,
+      "test_failures": 2,
+      "gate_exit_code": 0,
+      "log_excerpts": [
+        "Gate demo: version=before, controlled_fault=true, test_failures=2, exit=0",
+        "FAILED (failures=2)",
+        "Source files unchanged; temporary copy removed."
+      ],
+      "interpretation": "Misleading green: the before gate swallowed the failing test subprocess status."
+    },
+    {
+      "case": "after_controlled_fault",
+      "workflow": "gate-demo.yml",
+      "event": "workflow_dispatch",
+      "inputs": {"version": "after", "inject_fault": true},
+      "run_id": 36100019823,
+      "url": "https://github.com/coppynight/ai-contribution-starter/actions/runs/36100019823",
+      "head_sha": "faa23dc2d4747856219b07b5d9e60305341a475f",
+      "status": "completed",
+      "conclusion": "failure",
+      "expected_conclusion": "failure",
+      "tests_run": 3,
+      "test_failures": 2,
+      "gate_exit_code": 1,
+      "log_excerpts": [
+        "Gate demo: version=after, controlled_fault=true, test_failures=2, exit=1",
+        "FAILED (failures=2)",
+        "Source files unchanged; temporary copy removed.",
+        "Process completed with exit code 1."
+      ],
+      "interpretation": "Expected red: the after gate correctly propagated the failing test subprocess status. This intentionally failing run is preserved as demonstration evidence."
+    },
+    {
+      "case": "after_normal",
+      "workflow": "gate-demo.yml",
+      "event": "workflow_dispatch",
+      "inputs": {"version": "after", "inject_fault": false},
+      "run_id": 36100024622,
+      "url": "https://github.com/coppynight/ai-contribution-starter/actions/runs/36100024622",
+      "head_sha": "faa23dc2d4747856219b07b5d9e60305341a475f",
+      "status": "completed",
+      "conclusion": "success",
+      "expected_conclusion": "success",
+      "tests_run": 3,
+      "test_failures": 0,
+      "gate_exit_code": 0,
+      "log_excerpts": [
+        "Gate demo: version=after, controlled_fault=false, test_failures=0, exit=0",
+        "OK",
+        "Source files unchanged; temporary copy removed."
+      ],
+      "interpretation": "Expected green: all three existing tests passed with the original business code."
+    }
+  ],
+  "limitations": [
+    "These runs demonstrate propagation of test failures to CI, not comprehensive test coverage.",
+    "No branch protection, ruleset, merge queue, or production deployment was configured or verified.",
+    "GitHub log retention is configurable; all cases can be reproduced with the included scripts."
+  ]
+}

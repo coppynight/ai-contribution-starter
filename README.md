@@ -78,6 +78,15 @@ python scripts/run_gate_demo.py --version after --inject-fault true
 python scripts/run_gate_demo.py --version after --inject-fault false
 ```
 
+以下是真实运行记录，均基于提交 `faa23dc2d4747856219b07b5d9e60305341a475f`：
+
+- [完整对照自动验证：通过](https://github.com/coppynight/ai-contribution-starter/actions/runs/36099968800)。五种情形均符合预期，源文件哈希不变。
+- [before + 受控故障：绿色](https://github.com/coppynight/ai-contribution-starter/actions/runs/36100006712)。实际有 2 个测试失败，检查入口却返回 0。
+- [after + 同一受控故障：红色](https://github.com/coppynight/ai-contribution-starter/actions/runs/36100019823)。实际有 2 个测试失败，检查入口返回 1；**这是刻意保留的预期失败**。
+- [after + 正常代码：绿色](https://github.com/coppynight/ai-contribution-starter/actions/runs/36100024622)。3 个测试通过，入口返回 0。
+
+运行编号、提交、输入、实际结论与日志摘录保存在 [公开 Actions 证据](evidence/github-actions.json) 中。日志保留期由 GitHub 设置决定，脚本可用于重新复现。
+
 **CI 能反馈失败，与仓库禁止合入失败代码是两件事。** 本仓库工作流不配置分支保护或 ruleset；接入自己项目时，由维护者决定哪些检查必须通过、谁有接纳权限。本示例也不声称验证了多分支合并队列或生产部署。
 
 ## 文件导航
